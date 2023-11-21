@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of CERN Open Data Portal.
-# Copyright (C) 2017, 2018, 2022 CERN.
+# Copyright (C) 2017, 2018, 2020,2022 CERN.
 #
 # CERN Open Data Portal is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,8 +18,6 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
 """Command line interface for CERN Open Data Portal."""
-
-from __future__ import absolute_import, print_function
 
 import glob
 import json
@@ -97,12 +95,9 @@ def create_record(schema, data, files, skip_files):
     id = uuid.uuid4()
     cernopendata_recid_minter(id, data)
     data['$schema'] = schema
-    record = Record.create(data, id_=id)
+    record = Record.create(data, id_=id, with_bucket=not skip_files)
     if not skip_files:
-        bucket = Bucket.create()
-        handle_record_files(data, bucket, files, skip_files)
-        RecordsBuckets.create(
-            record=record.model, bucket=bucket)
+        handle_record_files(data, record.bucket, files, skip_files)
 
     return record
 
@@ -307,7 +302,7 @@ def glossary(files, mode):
             for data in json.load(source):
                 if "collections" not in data and \
                     not isinstance(
-                        data.get("collections", None), basestring):
+                        data.get("collections", None), str):
                     data["collections"] = []
                 data["collections"].append({"primary": "Terms"})
 
@@ -408,7 +403,7 @@ def docs(files, mode):
                     data["body"]["content"] = body_field.read()
                 if "collections" not in data and \
                     not isinstance(
-                        data.get("collections", None), basestring):
+                        data.get("collections", None), str):
                     data["collections"] = []
                 if mode == 'insert-or-replace':
                     try:

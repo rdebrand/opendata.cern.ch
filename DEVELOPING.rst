@@ -50,17 +50,21 @@ Another possibility to develop the CERN Open Data instance locally is to use
 the Podman container technology. This has an advantage that your containers
 will be running in the regular user space, not requiring any superuser access.
 
+Setting the SELinux policy to either minimal or disabled might help with the 
+following Commands.
+
 An example of a Podman development session:
 
 .. code-block:: console
 
    $ ./scripts/generate-localhost-certificate.sh
-   $ podman-compose -f docker-compose-dev.yml build
+   $ podman-compose -f docker-compose-dev.yml --podman-build-args='--format docker' build
    $ podman-compose -f docker-compose-dev.yml up
    $ podman exec -i -t opendatacernch_web_1 \
        ./scripts/populate-instance.sh --skip-docs --skip-glossary --skip-records
    $ podman exec -i -t opendatacernch_web_1 \
        cernopendata fixtures records --mode insert -f cernopendata/modules/fixtures/data/records/cms-primary-datasets.json
+   $ firefox http://0.0.0.0:5000/
    $ podman-compose -f docker-compose-dev.yml down -v
 
 Note that if you would like to test production-like conditions with Podman, you
@@ -91,7 +95,7 @@ and the `syntax rules <https://daringfireball.net/projects/markdown/syntax>`_,
 mainly concerning lists:
 
 * You must always use 4 spaces (or a tab) for indentation and the same
-  character (-, *, +, numbers) for items list.
+  character (-, \*, +, numbers) for items list.
 * To add a Table Of Contents to a document place the identifier ``[TOC]``
   where you want it to be.
 
@@ -173,6 +177,54 @@ cache content, you can run:
 .. code-block:: console
 
    $ docker exec opendatacernch-nginx-1 find /var/cache/nginx -type f -delete
+
+Working with UI packages
+------------------------
+
+When working on UI packages that have JavaScript and CSS files, you can have
+"live editing" by running the following command on a new terminal:
+
+.. code-block:: console
+
+   $ docker exec -i -t opendatacernch_web_1 cernopendata webpack run start
+
+Keep in mind that you need to recreate the ``package.json`` when adding or
+removing dependencies:
+
+.. code-block:: console
+
+   $ docker exec -i -t opendatacernch_web_1 cernopendata webpack clean create
+
+Working with iSpy visualizer
+----------------------------
+
+CSS dependencies which are needed for iSpy CMS visualizer are sandboxed in order
+to make it compatible with ``Semantic UI``. This was achieved by:
+
+* Wrapping all the ``Bootstrap`` html with a ``<div class="bootstrap-ispy">``
+* Prefixing all the css classes of ``Bootstrap`` framework and custom ispy css file with ``bootstrap-ispy`` class.
+* As a result ``Bootstrap`` css can be used inside a div with ``bootstrap-ispy`` class without any conflicts with ``Semantic UI``.
+
+Procedure to prefix css files with ``bootstrap-ispy`` class:
+
+* Download unminified version (CMS visualizer currently uses Bootstrap v3.3.1) of the ``Bootstrap`` framework from the official website (usually it's bootstrap.css file)
+* Install LESS preprocessor locally: ``npm install -g less``
+* Create a file ``prefix-bootstrap.less`` which contains the following:
+
+.. code-block:: console
+
+   .bootstrap-ispy {
+      @import (less) 'bootstrap.css';
+   }
+
+* Preprocess css file with LESS to generate a new prefixed file (it will create ``bootstrap-prefixed.css`` file):
+
+.. code-block:: console
+
+   lessc prefix-bootstrap.less bootstrap-prefixed.css
+
+* Place this file in ``/static/assets/`` to serve it
+* Same exact procedure needs to be done for custom `ispy.css file <https://github.com/cms-outreach/ispy-webgl/blob/master/css/ispy.css>`_
 
 Switching between PROD and DEV contexts
 ---------------------------------------

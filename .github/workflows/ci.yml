@@ -42,10 +42,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
       - name: Check compliance with Python coding style conventions
         run: |
-          pip install --upgrade "pip<20.3"
-          pip install --upgrade "setuptools<=44.0.0"
+          pip install --upgrade pip
           pip install pycodestyle
           ./run-tests.sh --check-pycodestyle
 
@@ -55,10 +59,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
       - name: Check compliance with Python docstring conventions
         run: |
-          pip install --upgrade "pip<20.3"
-          pip install --upgrade "setuptools<=44.0.0"
+          pip install --upgrade pip
           pip install pydocstyle
           ./run-tests.sh --check-pydocstyle
 
@@ -68,10 +76,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
       - name: Check Python manifest completeness
         run: |
-          pip install --upgrade "pip<20.3"
-          pip install --upgrade "setuptools<=44.0.0"
+          pip install --upgrade pip
           pip install check-manifest
           ./run-tests.sh --check-manifest
 
@@ -98,10 +110,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
       - name: Check isort
         run: |
-          pip install --upgrade "pip<20.3"
-          pip install --upgrade "setuptools<=44.0.0"
+          pip install --upgrade pip
           pip install isort
           ./run-tests.sh --check-isort
 
@@ -110,6 +126,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
 
       - name: Lint Dockerfile
         run: docker run -i --rm hadolint/hadolint:v1.18.2 < Dockerfile
