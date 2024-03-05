@@ -43,7 +43,7 @@
         "checksum": "adler32:44e5147f",
         "size": 1575978,
         "type": "index.json",
-        "uri": "root://eospublic.cern.ch//eos/opendata/cms/hidata/HIRun2010/HICorePhysics/RECO/PromptReco-v3/file-indexes/CMS_HIRun2010_HICorePhysics_PromptReco-v3_RECO_file_index.json"
+        "uri": "root://eospublic.cern.ch//eos/opendata/jade/tapes_index.json"
       }
     ],
     "keywords": [
